@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 3,
-    borderColor: "#3D2C8D",
+    borderColor: "#3D1B77",
     marginBottom: 12,
   },
   avatarPlaceholder: {
@@ -126,20 +126,20 @@ const styles = StyleSheet.create({
   avatarInitial: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 56,
-    color: "#3D2C8D",
+    color: "#3D1B77",
   },
   name: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 32,
     color: "#FFFFFF",
-    textShadowColor: "#3D2C8D",
+    textShadowColor: "#3D1B77",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 0,
   },
   bio: {
     fontFamily: "Play_400Regular",
     fontSize: 15,
-    color: "#3D2C8D",
+    color: "#3D1B77",
     textAlign: "center",
     marginTop: 6,
   },
@@ -152,20 +152,20 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 18,
-    color: "#3D2C8D",
+    color: "#3D1B77",
     textAlign: "center",
     marginBottom: 8,
   },
   calories: {
-    fontFamily: "PixelifySans_400Regular",
+    fontFamily: "Play_400Regular",
     fontSize: 56,
-    color: "#2E1F6B",
+    color: "#3D1B77",
     textAlign: "center",
   },
   caloriesUnit: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 16,
-    color: "#3D2C8D",
+    color: "#3D1B77",
     textAlign: "center",
   },
   row: {
@@ -178,15 +178,15 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 16,
-    color: "#3D2C8D",
+    color: "#3D1B77",
   },
   rowValue: {
     fontFamily: "Play_400Regular",
     fontSize: 16,
-    color: "#2E1F6B",
+    color: "#3D1B77",
   },
   editButton: {
-    backgroundColor: "#2E1F6B",
+    backgroundColor: "#3D1B77",
     borderRadius: 30,
     paddingVertical: 14,
     alignItems: "center",

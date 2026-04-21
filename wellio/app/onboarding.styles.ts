@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     color: "#FFFFFF",
     textAlign: "center",
     marginBottom: 16,
-    textShadowColor: "#3D2C8D",
+    textShadowColor: "#3D1B77",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 0,
   },
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
     borderRadius: 60,
     backgroundColor: "#FFFFFF",
     borderWidth: 3,
-    borderColor: "#3D2C8D",
+    borderColor: "#3D1B77",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -45,13 +45,13 @@ export const styles = StyleSheet.create({
   avatarPlaceholder: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 56,
-    color: "#3D2C8D",
+    color: "#3D1B77",
     lineHeight: 60,
   },
   avatarHint: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 14,
-    color: "#3D2C8D",
+    color: "#3D1B77",
     textAlign: "center",
     marginBottom: 20,
   },
@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
   label: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 18,
-    color: "#3D2C8D",
+    color: "#3D1B77",
     marginBottom: 6,
   },
   input: {
@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     fontFamily: "Play_400Regular",
     fontSize: 18,
-    color: "#2E1F6B",
+    color: "#3D1B77",
   },
   inputMultiline: {
     minHeight: 80,
@@ -83,7 +83,7 @@ export const styles = StyleSheet.create({
     color: "#FFFFFF",
     marginTop: 12,
     marginBottom: 10,
-    textShadowColor: "#3D2C8D",
+    textShadowColor: "#3D1B77",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 0,
   },
@@ -105,8 +105,8 @@ export const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   pillSelected: {
-    backgroundColor: "#2E1F6B",
-    borderColor: "#3D2C8D",
+    backgroundColor: "#3D1B77",
+    borderColor: "#3D1B77",
   },
   pillPressed: {
     opacity: 0.85,
@@ -114,14 +114,14 @@ export const styles = StyleSheet.create({
   pillText: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 16,
-    color: "#3D2C8D",
+    color: "#3D1B77",
   },
   pillTextSelected: {
     color: "#FFFFFF",
   },
   submit: {
     marginTop: 12,
-    backgroundColor: "#2E1F6B",
+    backgroundColor: "#3D1B77",
     borderRadius: 30,
     paddingVertical: 16,
     alignItems: "center",

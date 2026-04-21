@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
   welcomeText: {
     fontFamily: "PixelifySans_400Regular",
     fontSize: 28,
-    color: "#3D2C8D",
+    color: "#3D1B77",
   },
   logo: {
     width: 260,
@@ -23,12 +23,12 @@ export const styles = StyleSheet.create({
     fontSize: 64,
     color: "#FFFFFF",
     letterSpacing: 4,
-    textShadowColor: "#3D2C8D",
+    textShadowColor: "#3D1B77",
     textShadowOffset: { width: 3, height: 3 },
     textShadowRadius: 0,
   },
   button: {
-    backgroundColor: "#2E1F6B",
+    backgroundColor: "#3D1B77",
     paddingVertical: 16,
     paddingHorizontal: 80,
     borderRadius: 30,

@@ -1,11 +1,10 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -18,9 +17,15 @@ import {
   MealSlot,
   sumForMeal,
 } from "@/constants/diary";
+import { FoodItem, searchFoods } from "@/constants/foods";
 import { useDiary } from "@/hooks/use-diary";
 
-const MEAL_THEME: Record<MealSlot, { accent: string; border: string; soft: string }> = {
+import { styles } from "./add-food.styles";
+
+const MEAL_THEME: Record<
+  MealSlot,
+  { accent: string; border: string; soft: string }
+> = {
   breakfast: { accent: "#E89A3C", border: "#B8732A", soft: "#FFF3E0" },
   lunch: { accent: "#4FA064", border: "#2F6A42", soft: "#E9F5EC" },
   dinner: { accent: "#B84A42", border: "#8A342E", soft: "#FBE9E7" },
@@ -35,16 +40,45 @@ export default function AddFoodScreen() {
   const { diary, addEntry, removeEntry } = useDiary(date);
   const [meal, setMeal] = useState<MealSlot>(initialMeal);
   const [name, setName] = useState("");
+  const [grams, setGrams] = useState("");
   const [calories, setCalories] = useState("");
   const [carbs, setCarbs] = useState("");
   const [protein, setProtein] = useState("");
   const [fat, setFat] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [baseFood, setBaseFood] = useState<FoodItem | null>(null);
+
+  const suggestions = useMemo(
+    () => (showSuggestions ? searchFoods(name) : []),
+    [name, showSuggestions]
+  );
+
+  function pickFood(food: FoodItem) {
+    setName(food.name);
+    setGrams(String(food.grams));
+    setCalories(String(food.calories));
+    setCarbs(String(food.carbs));
+    setProtein(String(food.protein));
+    setFat(String(food.fat));
+    setBaseFood(food);
+    setShowSuggestions(false);
+  }
+
+  function onGramsChange(g: string) {
+    setGrams(g);
+    if (!baseFood) return;
+    const n = Number(g);
+    if (!Number.isFinite(n) || n <= 0) return;
+    const ratio = n / baseFood.grams;
+    setCalories(String(Math.round(baseFood.calories * ratio)));
+    setCarbs(String(Math.round(baseFood.carbs * ratio * 10) / 10));
+    setProtein(String(Math.round(baseFood.protein * ratio * 10) / 10));
+    setFat(String(Math.round(baseFood.fat * ratio * 10) / 10));
+  }
 
   const caloriesNum = Number(calories);
   const isValid =
-    name.trim().length > 0 &&
-    Number.isFinite(caloriesNum) &&
-    caloriesNum > 0;
+    name.trim().length > 0 && Number.isFinite(caloriesNum) && caloriesNum > 0;
 
   async function onAdd() {
     if (!isValid) return;
@@ -57,10 +91,13 @@ export default function AddFoodScreen() {
       fat: Number(fat) || 0,
     });
     setName("");
+    setGrams("");
     setCalories("");
     setCarbs("");
     setProtein("");
     setFat("");
+    setBaseFood(null);
+    setShowSuggestions(true);
   }
 
   const mealEntries = diary.entries.filter((e) => e.meal === meal);
@@ -89,7 +126,9 @@ export default function AddFoodScreen() {
                 pressed && { opacity: 0.6 },
               ]}
             >
-              <Text style={[styles.closeBtnText, { color: theme.border }]}>×</Text>
+              <Text style={[styles.closeBtnText, { color: theme.border }]}>
+                ×
+              </Text>
             </Pressable>
           </View>
 
@@ -124,10 +163,62 @@ export default function AddFoodScreen() {
           <Field label="Name" color={theme.border}>
             <TextInput
               value={name}
-              onChangeText={setName}
-              placeholder="e.g. Oatmeal"
+              onChangeText={(t) => {
+                setName(t);
+                setShowSuggestions(true);
+                if (baseFood && t !== baseFood.name) setBaseFood(null);
+              }}
+              placeholder="Add food"
               placeholderTextColor={theme.accent}
-              style={[styles.input, { borderColor: theme.border, color: theme.border }]}
+              style={[
+                styles.input,
+                { borderColor: theme.border, color: theme.border },
+              ]}
+            />
+            {suggestions.length > 0 && (
+              <View
+                style={[
+                  styles.suggestionBox,
+                  { borderColor: theme.border, backgroundColor: theme.soft },
+                ]}
+              >
+                {suggestions.map((s) => (
+                  <Pressable
+                    key={s.name}
+                    onPress={() => pickFood(s)}
+                    style={({ pressed }) => [
+                      styles.suggestionRow,
+                      { borderColor: theme.border },
+                      pressed && { opacity: 0.6 },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.suggestionName, { color: theme.border }]}
+                    >
+                      {s.name}
+                    </Text>
+                    <Text
+                      style={[styles.suggestionMeta, { color: theme.accent }]}
+                    >
+                      {s.calories} Cal · C{s.carbs} P{s.protein} F{s.fat}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </Field>
+
+          <Field label="Grams" color={theme.border}>
+            <TextInput
+              value={grams}
+              onChangeText={onGramsChange}
+              placeholder={baseFood ? `e.g. ${baseFood.grams}` : "e.g. 100"}
+              placeholderTextColor={theme.accent}
+              keyboardType="decimal-pad"
+              style={[
+                styles.input,
+                { borderColor: theme.border, color: theme.border },
+              ]}
             />
           </Field>
 
@@ -138,7 +229,10 @@ export default function AddFoodScreen() {
               placeholder="e.g. 350"
               placeholderTextColor={theme.accent}
               keyboardType="number-pad"
-              style={[styles.input, { borderColor: theme.border, color: theme.border }]}
+              style={[
+                styles.input,
+                { borderColor: theme.border, color: theme.border },
+              ]}
             />
           </Field>
 
@@ -150,7 +244,10 @@ export default function AddFoodScreen() {
                 placeholder="0"
                 placeholderTextColor={theme.accent}
                 keyboardType="decimal-pad"
-                style={[styles.input, { borderColor: theme.border, color: theme.border }]}
+                style={[
+                  styles.input,
+                  { borderColor: theme.border, color: theme.border },
+                ]}
               />
             </Field>
             <Field label="Protein (g)" color={theme.border} flex>
@@ -160,7 +257,10 @@ export default function AddFoodScreen() {
                 placeholder="0"
                 placeholderTextColor={theme.accent}
                 keyboardType="decimal-pad"
-                style={[styles.input, { borderColor: theme.border, color: theme.border }]}
+                style={[
+                  styles.input,
+                  { borderColor: theme.border, color: theme.border },
+                ]}
               />
             </Field>
             <Field label="Fat (g)" color={theme.border} flex>
@@ -170,7 +270,10 @@ export default function AddFoodScreen() {
                 placeholder="0"
                 placeholderTextColor={theme.accent}
                 keyboardType="decimal-pad"
-                style={[styles.input, { borderColor: theme.border, color: theme.border }]}
+                style={[
+                  styles.input,
+                  { borderColor: theme.border, color: theme.border },
+                ]}
               />
             </Field>
           </View>
@@ -207,7 +310,8 @@ export default function AddFoodScreen() {
                     {e.name}
                   </Text>
                   <Text style={[styles.entryMeta, { color: theme.border }]}>
-                    {e.calories} Cal · C {e.carbs}g · P {e.protein}g · F {e.fat}g
+                    {e.calories} Cal · C {e.carbs}g · P {e.protein}g · F {e.fat}
+                    g
                   </Text>
                 </View>
                 <Pressable
@@ -260,157 +364,3 @@ function Field({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#B6AAFE" },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    marginBottom: 4,
-  },
-  closeBtn: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: "center",
-    paddingHorizontal: 4,
-  },
-  closeBtnText: {
-    fontFamily: "Play_700Bold",
-    fontSize: 28,
-    lineHeight: 30,
-  },
-  flex: { flex: 1 },
-  scroll: { padding: 20, paddingBottom: 40, gap: 12 },
-  title: {
-    fontFamily: "PixelifySans_400Regular",
-    fontSize: 28,
-    color: "#FFFFFF",
-    textAlign: "center",
-    textShadowColor: "#3D1B77",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 0,
-    marginBottom: 4,
-  },
-  mealRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 4,
-  },
-  mealPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    backgroundColor: "#FFFFFF",
-  },
-  mealPillActive: {
-    backgroundColor: "#3D1B77",
-  },
-  mealPillText: {
-    fontFamily: "Play_700Bold",
-    color: "#3D1B77",
-    fontSize: 14,
-  },
-  mealPillTextActive: {
-    color: "#FFFFFF",
-  },
-  field: { marginBottom: 4 },
-  label: {
-    fontFamily: "Play_700Bold",
-    fontSize: 14,
-    color: "#3D1B77",
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontFamily: "Play_400Regular",
-    fontSize: 16,
-    color: "#3D1B77",
-  },
-  macroRow: { flexDirection: "row", gap: 8 },
-  addBtn: {
-    backgroundColor: "#3D1B77",
-    borderRadius: 30,
-    paddingVertical: 14,
-    alignItems: "center",
-    marginTop: 4,
-  },
-  addBtnDisabled: { opacity: 0.5 },
-  addBtnPressed: { opacity: 0.85 },
-  addBtnText: {
-    fontFamily: "PixelifySans_400Regular",
-    color: "#FFFFFF",
-    fontSize: 18,
-  },
-  sectionTitle: {
-    fontFamily: "Play_700Bold",
-    fontSize: 22,
-    color: "#FFFFFF",
-    marginTop: 12,
-    textShadowColor: "#3D1B77",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 0,
-  },
-  emptyText: {
-    fontFamily: "Play_400Regular",
-    color: "#3D1B77",
-    fontSize: 14,
-  },
-  entryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    gap: 10,
-  },
-  entryName: {
-    fontFamily: "Play_700Bold",
-    fontSize: 16,
-    color: "#3D1B77",
-  },
-  entryMeta: {
-    fontFamily: "Play_400Regular",
-    fontSize: 12,
-    color: "#3D1B77",
-    marginTop: 2,
-  },
-  removeBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: "#B84A42",
-  },
-  removeBtnText: {
-    fontFamily: "Play_700Bold",
-    color: "#B84A42",
-    fontSize: 12,
-  },
-  doneBtn: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    borderRadius: 30,
-    paddingVertical: 12,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  doneBtnText: {
-    fontFamily: "PixelifySans_400Regular",
-    color: "#3D1B77",
-    fontSize: 16,
-  },
-});

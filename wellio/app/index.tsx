@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Image, Pressable, Text } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useProfile } from "@/hooks/use-profile";
@@ -26,12 +26,15 @@ export default function StartPage() {
 
       <Text style={styles.appName}>WELLIO</Text>
 
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-        onPress={onStart}
-      >
-        <Text style={styles.buttonText}>Start</Text>
-      </Pressable>
+      <View style={styles.buttonWrap}>
+        <View style={styles.buttonShadow} />
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+          onPress={onStart}
+        >
+          <Text style={styles.buttonText}>Start</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }

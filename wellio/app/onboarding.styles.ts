@@ -97,7 +97,7 @@ export const styles = StyleSheet.create({
   pill: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: "center",
@@ -122,7 +122,7 @@ export const styles = StyleSheet.create({
   submit: {
     marginTop: 12,
     backgroundColor: "#3D1B77",
-    borderRadius: 30,
+    borderRadius: 10,
     paddingVertical: 16,
     alignItems: "center",
   },

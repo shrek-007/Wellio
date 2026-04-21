@@ -15,7 +15,7 @@ function emit(date: string) {
   for (const l of set) l(d);
 }
 
-async function loadDiary(date: string): Promise<DayDiary> {
+export async function loadDiary(date: string): Promise<DayDiary> {
   if (cache.has(date)) return cache.get(date)!;
   const raw = await AsyncStorage.getItem(KEY_PREFIX + date);
   const diary: DayDiary = raw ? JSON.parse(raw) : emptyDiary(date);

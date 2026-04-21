@@ -4,7 +4,6 @@ import {
   Image,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -15,10 +14,14 @@ import { calculateDailyCalories } from "@/constants/profile";
 import { useDiary } from "@/hooks/use-diary";
 import { useProfile } from "@/hooks/use-profile";
 
+import { styles } from "./index.styles";
+
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const IMG_BREAKFAST = require("../../bilds/Brackfest.png");
 const IMG_LUNCH = require("../../bilds/Lunch.png");
+const IMG_DINNER = require("../../bilds/Dinner_Icon.jpg");
+const IMG_SNACK = require("../../bilds/Snack_Icon.jpg");
 const IMG_WATER_FULL = require("../../bilds/FullWater.png");
 const IMG_WATER_EMPTY = require("../../bilds/emptyWater.png");
 
@@ -34,8 +37,8 @@ type MealDisplay = {
 const MEALS: MealDisplay[] = [
   { slot: "breakfast", name: "Breakfast", initial: "B", accent: "#E89A3C", border: "#B8732A", image: IMG_BREAKFAST },
   { slot: "lunch", name: "Lunch", initial: "L", accent: "#4FA064", border: "#2F6A42", image: IMG_LUNCH },
-  { slot: "dinner", name: "Dinner", initial: "D", accent: "#B84A42", border: "#8A342E" },
-  { slot: "snack", name: "Snack", initial: "S", accent: "#8B5A3C", border: "#5F3E2A" },
+  { slot: "dinner", name: "Dinner", initial: "D", accent: "#B84A42", border: "#8A342E", image: IMG_DINNER },
+  { slot: "snack", name: "Snack", initial: "S", accent: "#8B5A3C", border: "#5F3E2A", image: IMG_SNACK },
 ];
 
 const MACRO_COLORS = {
@@ -97,6 +100,15 @@ export default function HomeScreen() {
   const dayTotals = sumForDay(diary);
   const consumed = dayTotals.calories;
   const pct = target > 0 ? Math.min(1, consumed / target) : 0;
+  const overage = consumed - target;
+  const progressColor =
+    overage >= 500
+      ? "#B84A42"
+      : overage >= 300
+        ? "#E89A3C"
+        : overage >= 200
+          ? "#E8C84F"
+          : "#4FA064";
 
   const tCarbs = targetCarbs(target);
   const tProtein = targetProtein(target);
@@ -140,10 +152,12 @@ export default function HomeScreen() {
                 </Text>
               </View>
             )}
-            <Text style={styles.consumedNumber}>{consumed}</Text>
+            <Text style={[styles.consumedNumber, { color: progressColor }]}>
+              {consumed}
+            </Text>
             <View style={styles.consumedLabelWrap}>
-              <Text style={styles.consumedLabel}>calories</Text>
-              <Text style={styles.consumedLabel}>consumed</Text>
+              <Text style={styles.consumedLabel}>eaten</Text>
+              <Text style={styles.consumedLabel}>today</Text>
             </View>
             <View style={styles.targetWrap}>
               <View style={styles.targetShadow} />
@@ -154,7 +168,12 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${pct * 100}%` }]} />
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${pct * 100}%`, backgroundColor: progressColor },
+              ]}
+            />
           </View>
 
           <View style={styles.macrosRow}>
@@ -277,304 +296,3 @@ function MacroBox({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#B6AAFE",
-  },
-  scroll: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  title: {
-    fontFamily: "PixelifySans_400Regular",
-    fontSize: 32,
-    color: "#FFFFFF",
-    textAlign: "center",
-    textShadowColor: "#3D1B77",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 0,
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  daysRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
-    paddingHorizontal: 4,
-  },
-  dayCell: {
-    alignItems: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 6,
-    borderRadius: 8,
-    minWidth: 40,
-  },
-  dayCellSelected: {
-    backgroundColor: "#E7E0FF",
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-  },
-  dayLabel: {
-    fontFamily: "Play_700Bold",
-    fontSize: 13,
-    color: "#3D1B77",
-  },
-  dayDate: {
-    fontFamily: "Play_400Regular",
-    fontSize: 14,
-    color: "#3D1B77",
-    marginTop: 2,
-  },
-  daySelectedText: {
-    color: "#3D1B77",
-  },
-  cardWrap: {
-    position: "relative",
-    marginBottom: 16,
-  },
-  cardShadow: {
-    position: "absolute",
-    top: 4,
-    left: 2,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#3D1B77",
-    borderRadius: 18,
-  },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    marginRight: 2,
-    marginBottom: 4,
-  },
-  calorieHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  mascot: {
-    width: 54,
-    height: 54,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    marginRight: 10,
-  },
-  mascotPlaceholder: {
-    backgroundColor: "#FFD1D1",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  mascotInitial: {
-    fontFamily: "PixelifySans_400Regular",
-    fontSize: 28,
-    color: "#B84A42",
-  },
-  consumedNumber: {
-    fontFamily: "Play_700Bold",
-    fontSize: 44,
-    color: "#4FA064",
-    marginRight: 8,
-    textShadowColor: "#3D1B77",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 0,
-  },
-  consumedLabelWrap: {
-    flex: 1,
-  },
-  consumedLabel: {
-    fontFamily: "Play_400Regular",
-    fontSize: 13,
-    color: "#3D1B77",
-    lineHeight: 16,
-  },
-  targetWrap: {
-    position: "relative",
-  },
-  targetShadow: {
-    position: "absolute",
-    top: 3,
-    left: 3,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#3D1B77",
-    borderRadius: 8,
-  },
-  targetBox: {
-    marginRight: 3,
-    marginBottom: 3,
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    backgroundColor: "#FFFFFF",
-  },
-  targetText: {
-    fontFamily: "Play_400Regular",
-    fontSize: 14,
-    color: "#3D1B77",
-  },
-  progressTrack: {
-    height: 18,
-    borderRadius: 10,
-    backgroundColor: "#E7E0FF",
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    overflow: "hidden",
-    marginBottom: 14,
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#4FA064",
-  },
-  macrosRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  macroWrap: {
-    flex: 1,
-    flexBasis: 0,
-    minWidth: 0,
-    position: "relative",
-  },
-  macroShadow: {
-    position: "absolute",
-    top: 3,
-    left: 3,
-    right: 0,
-    bottom: 0,
-    borderRadius: 10,
-  },
-  macroBox: {
-    marginRight: 3,
-    marginBottom: 3,
-    borderWidth: 2,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-  },
-  macroValue: {
-    fontFamily: "Play_700Bold",
-    fontSize: 34,
-    textAlign: "center",
-    textShadowColor: "#3D1B77",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 0,
-  },
-  macroLabel: {
-    fontFamily: "Play_400Regular",
-    fontSize: 11,
-    marginTop: 2,
-    textAlign: "center",
-  },
-  mealsCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 12,
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    marginRight: 2,
-    marginBottom: 4,
-    gap: 10,
-  },
-  mealRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 2,
-    borderRadius: 12,
-    padding: 8,
-    gap: 12,
-  },
-  mealIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  mealImage: {
-    width: 44,
-    height: 44,
-  },
-  mealIconText: {
-    fontFamily: "PixelifySans_400Regular",
-    fontSize: 22,
-    color: "#FFFFFF",
-  },
-  mealName: {
-    fontFamily: "Play_400Regular",
-    fontWeight: "700",
-    fontSize: 18,
-    flex: 1,
-  },
-  mealCalBox: {
-    borderWidth: 2,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  mealCalText: {
-    fontFamily: "Play_400Regular",
-    fontWeight: "700",
-    fontSize: 15,
-    color: "#FFFFFF",
-  },
-  waterCard: {
-    backgroundColor: "#E7E0FF",
-    borderRadius: 18,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    borderWidth: 2,
-    borderColor: "#3D1B77",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  waterLabel: {
-    fontFamily: "Play_400Regular",
-    fontSize: 22,
-    color: "#3D1B77",
-  },
-  waterDrops: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  waterPress: {
-    padding: 2,
-  },
-  waterImage: {
-    width: 28,
-    height: 32,
-  },
-  empty: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-    gap: 16,
-  },
-  emptyText: {
-    fontFamily: "PixelifySans_400Regular",
-    fontSize: 22,
-    color: "#FFFFFF",
-  },
-  cta: {
-    backgroundColor: "#3D1B77",
-    borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-  },
-  ctaText: {
-    fontFamily: "PixelifySans_400Regular",
-    fontSize: 18,
-    color: "#FFFFFF",
-  },
-});

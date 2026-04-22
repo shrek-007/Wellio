@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import {
   Image,
+  Linking,
   Pressable,
   ScrollView,
   Text,
@@ -31,7 +32,10 @@ export default function ProfileScreen() {
         <View style={styles.empty}>
           <Text style={styles.emptyText}>No profile yet</Text>
           <Pressable
-            style={({ pressed }) => [styles.editButton, pressed && styles.editPressed]}
+            style={({ pressed }) => [
+              styles.editButton,
+              pressed && styles.editPressed,
+            ]}
             onPress={() => router.push("/onboarding")}
           >
             <Text style={styles.editText}>Set up profile</Text>
@@ -72,14 +76,19 @@ export default function ProfileScreen() {
           <Row label="Height" value={`${profile.heightCm} cm`} />
           <Row label="Weight" value={`${profile.weightKg} kg`} />
           <Row label="Activity" value={ACTIVITY_LABELS[profile.activity]} />
-          {profile.goal ? <Row label="Goal" value={GOAL_LABELS[profile.goal]} /> : null}
+          {profile.goal ? (
+            <Row label="Goal" value={GOAL_LABELS[profile.goal]} />
+          ) : null}
           {profile.targetWeightKg ? (
             <Row label="Target weight" value={`${profile.targetWeightKg} kg`} />
           ) : null}
         </View>
 
         <Pressable
-          style={({ pressed }) => [styles.editButton, pressed && styles.editPressed]}
+          style={({ pressed }) => [
+            styles.editButton,
+            pressed && styles.editPressed,
+          ]}
           onPress={() => router.push("/onboarding")}
         >
           <Text style={styles.editText}>Edit profile</Text>
@@ -97,4 +106,3 @@ function Row({ label, value }: { label: string; value: string }) {
     </View>
   );
 }
-

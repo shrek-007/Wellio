@@ -1,6 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -18,6 +20,7 @@ import {
   sumForMeal,
 } from "@/constants/diary";
 import { FoodItem, searchFoods } from "@/constants/foods";
+import { lookupBarcode } from "@/constants/off";
 import { useDiary } from "@/hooks/use-diary";
 
 import { styles } from "./add-food.styles";
@@ -33,7 +36,11 @@ const MEAL_THEME: Record<
 };
 
 export default function AddFoodScreen() {
-  const params = useLocalSearchParams<{ date?: string; meal?: MealSlot }>();
+  const params = useLocalSearchParams<{
+    date?: string;
+    meal?: MealSlot;
+    barcode?: string;
+  }>();
   const date = params.date ?? "";
   const initialMeal: MealSlot = (params.meal as MealSlot) ?? "breakfast";
 
@@ -47,11 +54,36 @@ export default function AddFoodScreen() {
   const [fat, setFat] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [baseFood, setBaseFood] = useState<FoodItem | null>(null);
+  const [lookingUp, setLookingUp] = useState(false);
+  const handledBarcode = useRef<string | null>(null);
 
   const suggestions = useMemo(
     () => (showSuggestions ? searchFoods(name) : []),
     [name, showSuggestions]
   );
+
+  useEffect(() => {
+    const code = params.barcode;
+    if (!code || handledBarcode.current === code) return;
+    handledBarcode.current = code;
+    setLookingUp(true);
+    lookupBarcode(code)
+      .then((result) => {
+        if (result.ok) {
+          pickFood(result.food);
+        } else {
+          const msg =
+            result.reason === "not_found"
+              ? "Barcode not found in Open Food Facts."
+              : result.reason === "no_nutrition"
+                ? "This product has no nutrition info. Please enter it manually."
+                : "Couldn't reach Open Food Facts. Check your connection.";
+          Alert.alert("Scan", msg);
+        }
+      })
+      .finally(() => setLookingUp(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.barcode]);
 
   function pickFood(food: FoodItem) {
     setName(food.name);
@@ -161,20 +193,44 @@ export default function AddFoodScreen() {
           </View>
 
           <Field label="Name" color={theme.border}>
-            <TextInput
-              value={name}
-              onChangeText={(t) => {
-                setName(t);
-                setShowSuggestions(true);
-                if (baseFood && t !== baseFood.name) setBaseFood(null);
-              }}
-              placeholder="Add food"
-              placeholderTextColor={theme.accent}
-              style={[
-                styles.input,
-                { borderColor: theme.border, color: theme.border },
-              ]}
-            />
+            <View style={styles.nameRow}>
+              <TextInput
+                value={name}
+                onChangeText={(t) => {
+                  setName(t);
+                  setShowSuggestions(true);
+                  if (baseFood && t !== baseFood.name) setBaseFood(null);
+                }}
+                placeholder="Add food"
+                placeholderTextColor={theme.accent}
+                style={[
+                  styles.input,
+                  styles.flex,
+                  { borderColor: theme.border, color: theme.border },
+                ]}
+              />
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/scan-barcode" as never,
+                    params: { date, meal },
+                  })
+                }
+                disabled={lookingUp}
+                style={({ pressed }) => [
+                  styles.scanBtn,
+                  { backgroundColor: theme.border, borderColor: theme.border },
+                  lookingUp && styles.addBtnDisabled,
+                  pressed && !lookingUp && styles.addBtnPressed,
+                ]}
+              >
+                {lookingUp ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <Text style={styles.scanBtnText}>Scan</Text>
+                )}
+              </Pressable>
+            </View>
             {suggestions.length > 0 && (
               <View
                 style={[

@@ -115,4 +115,13 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     color: "#FFFFFF",
   },
+  attribution: {
+    fontFamily: "Play_400Regular",
+    fontSize: 12,
+    color: "#3D1B77",
+    textAlign: "center",
+    marginTop: 20,
+    opacity: 0.75,
+    textDecorationLine: "underline",
+  },
 });

@@ -78,6 +78,20 @@ export const styles = StyleSheet.create({
     color: "#3D1B77",
   },
   macroRow: { flexDirection: "row", gap: 8 },
+  nameRow: { flexDirection: "row", alignItems: "stretch", gap: 8 },
+  scanBtn: {
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 72,
+  },
+  scanBtnText: {
+    fontFamily: "PixelifySans_400Regular",
+    color: "#FFFFFF",
+    fontSize: 16,
+  },
   suggestionBox: {
     marginTop: 6,
     borderWidth: 2,
